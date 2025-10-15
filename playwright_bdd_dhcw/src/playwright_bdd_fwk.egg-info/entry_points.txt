@@ -1,0 +1,2 @@
+[pytest11]
+playwright_bdd_fwk = framework.plugin.pytest_plugin

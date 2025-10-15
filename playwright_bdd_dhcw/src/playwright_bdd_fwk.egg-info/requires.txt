@@ -1,0 +1,6 @@
+pytest
+pytest-bdd
+playwright
+pytest-playwright
+python-dotenv
+pydantic>=2
