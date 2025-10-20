@@ -6,18 +6,15 @@ build-backend = "setuptools.build_meta"
 name = "playwright-bdd-fwk"
 version = "0.1.0"
 requires-python = ">=3.11"
-description = "Reusable Playwright + pytest-bdd framework"
+description = "Reusable Playwright + Behave framework"
 dependencies = [
-  "pytest",
-  "pytest-bdd",
-  "playwright",
-  "pytest-playwright",
-  "python-dotenv",
+  "behave>=1.2.6",
+  "playwright>=1.45.0",
   "pydantic>=2",
+  "pyyaml",
+  "python-dotenv"
 ]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
-[project.entry-points.pytest11]
-playwright_bdd_fwk = "framework.plugin.pytest_plugin"

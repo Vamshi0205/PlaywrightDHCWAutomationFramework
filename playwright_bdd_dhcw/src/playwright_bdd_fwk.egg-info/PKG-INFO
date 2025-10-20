@@ -1,11 +1,10 @@
 Metadata-Version: 2.4
 Name: playwright-bdd-fwk
 Version: 0.1.0
-Summary: Reusable Playwright + pytest-bdd framework
+Summary: Reusable Playwright + Behave framework
 Requires-Python: >=3.11
-Requires-Dist: pytest
-Requires-Dist: pytest-bdd
-Requires-Dist: playwright
-Requires-Dist: pytest-playwright
-Requires-Dist: python-dotenv
+Requires-Dist: behave>=1.2.6
+Requires-Dist: playwright>=1.45.0
 Requires-Dist: pydantic>=2
+Requires-Dist: pyyaml
+Requires-Dist: python-dotenv
