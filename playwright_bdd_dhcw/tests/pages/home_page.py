@@ -1,13 +1,13 @@
-# tests/pages/home_page.py
+import re
 from playwright.sync_api import Page, expect
 from framework.base.base_page import BasePage
 
 class HomePage(BasePage):
-    # --- Locators (simple & stable) ---
-    NAV = "nav"  # top navigation landmark
+
+    NAV = "nav"  
     SEARCHBOX_ROLE = "searchbox"
-    SEARCH_LABEL = "Search"       # adjust if the visible label differs
-    COOKIE_ACCEPT = "#ccc-notify-accept"   # update to your site if needed
+    SEARCH_LABEL = "Search"      
+    COOKIE_ACCEPT = "#ccc-notify-accept"
     COOKIE_BANNER = "#ccc-notify"
 
     # --- Actions ---
@@ -22,14 +22,12 @@ class HomePage(BasePage):
             self.page.locator(self.COOKIE_ACCEPT).first.click(timeout=2000)
 
     def click_nav(self, text: str):
-        # Prefer accessible roles inside the nav landmark
         nav = self.page.get_by_role("navigation")
         link = nav.get_by_role("link", name=text, exact=False).first
         expect(link).to_be_visible()
         link.click()
 
     def search(self, text: str):
-        # Try ARIA searchbox first; fall back to labeled textbox
         box = self.page.get_by_role(self.SEARCHBOX_ROLE)
         if box.count() == 0:
             box = self.page.get_by_role("textbox", name=self.SEARCH_LABEL)
@@ -46,10 +44,22 @@ class HomePage(BasePage):
     def should_have_title(self, expected: str):
         expect(self.page).to_have_title(expected)
 
-    def should_see_search_results(self):
-        # Simple, tolerant heading check
-        heading = self.page.get_by_role("heading", name=lambda n: n and "search" in n.lower())
-        expect(heading).to_be_visible()
+    def should_see_search_results(self, text: str = "search results"):
+        pattern = re.compile(re.escape(text), re.I)
+        heading = self.page.get_by_role("heading", name=pattern)
+        expect(heading).to_be_visible(timeout=10000)
 
     def url_should_contain(self, snippet: str):
         expect(self.page).to_have_url(lambda u: snippet.lower() in u.lower())
+
+    def assert_results_containing(self, text: str):
+        container = self._results_container()
+        if container.count():
+            expect(container.get_by_text(text, exact=False).first).to_be_visible(timeout=10000)
+        else:
+            expect(self.page.get_by_text(text, exact=False).first).to_be_visible(timeout=10000)
+
+    def _results_container(self):
+        return self.page.locator(
+            "#svSearchResults"
+        )

@@ -15,6 +15,11 @@ dependencies = [
   "python-dotenv"
 ]
 
+reports = [
+  "allure-behave>=2.13.5",
+  "behave-html-formatter>=0.9.10"
+]
+
 [tool.setuptools.packages.find]
 where = ["src"]
 

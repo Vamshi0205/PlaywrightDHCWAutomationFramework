@@ -19,7 +19,7 @@ def step_search_text(context, search_text):
 
 @then('I can see a "search results" side heading appear')
 def step_verify_search_heading(context):
-    _home(context).assert_search_side_heading("search results")
+    _home(context).should_see_search_results("search results")
 
 @then("I can see Results appear containing text '{expected_text}'")
 def step_verify_search_results(context, expected_text):
