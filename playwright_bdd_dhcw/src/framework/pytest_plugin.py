@@ -29,14 +29,12 @@ def browser(playwright_instance, pytestconfig):
     browser.close()
 
 @pytest.fixture(scope="function")
-def page(browser, config, request):
-    # Create per-test context & page; start tracing
-    context = browser.new_context(base_url=config.base_url, record_video_dir=str(ARTIFACTS / "videos"))
+def page(browser, config, request):       
+    context = browser.new_context(base_url=config.base_url, record_video_dir=str(ARTIFACTS / "videos"))     # Create per-test context & page; start tracing
     page = context.new_page()
     context.tracing.start(screenshots=True, snapshots=True, sources=True)
     yield page
-    # Teardown with failure-aware attachments
-    failed = request.node.rep_call.failed if hasattr(request.node, "rep_call") else False
+    failed = request.node.rep_call.failed if hasattr(request.node, "rep_call") else False    # Teardown with failure-aware attachments
     ts = time.strftime("%Y%m%d-%H%M%S")
     name = f"{request.node.name}-{ts}"
     trace = ARTIFACTS / f"{name}.zip"
@@ -54,8 +52,8 @@ def page(browser, config, request):
         print(f"Trace stop failed: {e}")
     context.close()
 
-# Hook to know if test failed (so page fixture can react)
-def pytest_runtest_makereport(item, call):
+
+def pytest_runtest_makereport(item, call):     # Hook to know if test failed (so page fixture can react)
     outcome = yield
     rep = outcome.get_result()
     setattr(item, "rep_" + rep.when, rep)
