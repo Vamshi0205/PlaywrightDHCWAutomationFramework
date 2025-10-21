@@ -59,7 +59,7 @@ repo-root/
 ├─ pyproject.toml
 ├─ src/
 │  └─ framework/
-│     ├─ core/ (config/logger/paths etc.)
+│     ├─ core/ (config/paths etc.)
 │     └─ base/ (BasePage)
 └─ tests/
    ├─ config/
