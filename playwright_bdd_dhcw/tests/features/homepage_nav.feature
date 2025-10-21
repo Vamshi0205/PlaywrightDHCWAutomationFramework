@@ -15,8 +15,8 @@ Scenario Outline: Testing Navigation Functionality using Hyperlinks in DHCW web 
 
   Examples:
     | hyperlink               | expected_title                     |
-    | National Data Resource  | National Data Resource - title      |
-    | Secure Data Environment | Secure Data Environment - title     |
+    | National Data Resource  | National Data Resource - Digital Health and Care Wales     |
+    | Welsh Clinical Portal | Welsh Clinical Portal - Digital Health and Care Wales     |
 
 
 @nav

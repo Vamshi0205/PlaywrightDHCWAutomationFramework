@@ -27,6 +27,35 @@ class HomePage(BasePage):
         expect(link).to_be_visible()
         link.click()
 
+    def click_nav_link(self, name: str, max_scrolls: int = 12, step: int = 1200):
+
+        pat = re.compile(re.escape(name), re.I)
+        link = self.page.get_by_role("navigation").get_by_role("link", name=pat).first
+        if link.count():
+            try:
+                link.scroll_into_view_if_needed()
+            except Exception:
+                pass
+            expect(link).to_be_visible()
+            link.click()
+            return
+
+        for _ in range(max_scrolls):
+            link = self.page.get_by_role("link", name=pat).first
+            if link.count():
+                try:
+                    link.scroll_into_view_if_needed()
+                except Exception:
+                    pass
+                expect(link).to_be_visible()
+                link.click()
+                return
+
+            self.page.mouse.wheel(0, step)
+            self.page.wait_for_timeout(200)
+
+        raise AssertionError(f"Link not found: {name}")
+
     def search(self, text: str):
         box = self.page.get_by_role(self.SEARCHBOX_ROLE)
         if box.count() == 0:
@@ -48,9 +77,6 @@ class HomePage(BasePage):
         pattern = re.compile(re.escape(text), re.I)
         heading = self.page.get_by_role("heading", name=pattern)
         expect(heading).to_be_visible(timeout=10000)
-
-    def url_should_contain(self, snippet: str):
-        expect(self.page).to_have_url(lambda u: snippet.lower() in u.lower())
 
     def assert_results_containing(self, text: str):
         container = self._results_container()
