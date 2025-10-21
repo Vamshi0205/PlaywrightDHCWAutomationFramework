@@ -65,6 +65,13 @@ class HomePage(BasePage):
         box.first.press("Enter")
         self.page.wait_for_load_state("networkidle")
 
+    def open_search_options_dropdown(self):
+        self.click_visible(self.page.get_by_role("combobox", name=re.compile("search within", re.I)))
+
+    def choose_search_scope(self, label_text: str):
+        combo = self.page.get_by_role("combobox", name=re.compile("search within", re.I))
+        combo.select_option(label=label_text)
+
     # --- Assertions ---
     def should_see_nav_link(self, text: str):
         link = self.page.get_by_role("navigation").get_by_role("link", name=text, exact=False).first
@@ -89,3 +96,23 @@ class HomePage(BasePage):
         return self.page.locator(
             "#svSearchResults"
         )
+
+    def assert_dropdown_options(self, expected_options: list[str], exact: bool = False):
+        combo = self.page.locator("#searchFilter").first
+        if not combo.count():
+            combo = self.page.get_by_role("combobox", name=re.compile("search within", re.I)).first
+
+        self.ensure_visible(combo)
+        expect(combo).to_be_visible()
+
+        opts = [t.strip() for t in combo.locator("option").all_inner_texts() if t.strip()]
+        actual_lower = [o.lower() for o in opts]
+        expected_lower = [e.lower() for e in expected_options]
+
+        missing = [e for e in expected_options if e.lower() not in actual_lower]
+        assert not missing, f"Missing options: {missing}. Actual: {opts}"
+
+        if exact:
+            assert set(expected_lower) == set(actual_lower), f"Expected exactly {expected_options}, got {opts}"
+
+    
