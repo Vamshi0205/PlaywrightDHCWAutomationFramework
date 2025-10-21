@@ -32,7 +32,7 @@ def step_click_hyperlink(context, hyperlink):
 
 @then('I\'m navigated to the page with Title "{expected_title}"')
 def step_verify_page_title(context, expected_title):
-    _home(context).assert_title(expected_title)
+    _home(context).should_have_title(expected_title)
 
 # -------------------- Dropdown Steps --------------------
 @when("I click on the Search options dropdown next to the Search Text Box")

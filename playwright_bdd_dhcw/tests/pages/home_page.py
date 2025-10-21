@@ -27,6 +27,35 @@ class HomePage(BasePage):
         expect(link).to_be_visible()
         link.click()
 
+    def click_nav_link(self, name: str, max_scrolls: int = 12, step: int = 1200):
+
+        pat = re.compile(re.escape(name), re.I)
+        link = self.page.get_by_role("navigation").get_by_role("link", name=pat).first
+        if link.count():
+            try:
+                link.scroll_into_view_if_needed()
+            except Exception:
+                pass
+            expect(link).to_be_visible()
+            link.click()
+            return
+
+        for _ in range(max_scrolls):
+            link = self.page.get_by_role("link", name=pat).first
+            if link.count():
+                try:
+                    link.scroll_into_view_if_needed()
+                except Exception:
+                    pass
+                expect(link).to_be_visible()
+                link.click()
+                return
+
+            self.page.mouse.wheel(0, step)
+            self.page.wait_for_timeout(200)
+
+        raise AssertionError(f"Link not found: {name}")
+
     def search(self, text: str):
         box = self.page.get_by_role(self.SEARCHBOX_ROLE)
         if box.count() == 0:
@@ -35,6 +64,13 @@ class HomePage(BasePage):
         box.first.fill(text)
         box.first.press("Enter")
         self.page.wait_for_load_state("networkidle")
+
+    def open_search_options_dropdown(self):
+        self.click_visible(self.page.get_by_role("combobox", name=re.compile("search within", re.I)))
+
+    def choose_search_scope(self, label_text: str):
+        combo = self.page.get_by_role("combobox", name=re.compile("search within", re.I))
+        combo.select_option(label=label_text)
 
     # --- Assertions ---
     def should_see_nav_link(self, text: str):
@@ -49,9 +85,6 @@ class HomePage(BasePage):
         heading = self.page.get_by_role("heading", name=pattern)
         expect(heading).to_be_visible(timeout=10000)
 
-    def url_should_contain(self, snippet: str):
-        expect(self.page).to_have_url(lambda u: snippet.lower() in u.lower())
-
     def assert_results_containing(self, text: str):
         container = self._results_container()
         if container.count():
@@ -63,3 +96,23 @@ class HomePage(BasePage):
         return self.page.locator(
             "#svSearchResults"
         )
+
+    def assert_dropdown_options(self, expected_options: list[str], exact: bool = False):
+        combo = self.page.locator("#searchFilter").first
+        if not combo.count():
+            combo = self.page.get_by_role("combobox", name=re.compile("search within", re.I)).first
+
+        self.ensure_visible(combo)
+        expect(combo).to_be_visible()
+
+        opts = [t.strip() for t in combo.locator("option").all_inner_texts() if t.strip()]
+        actual_lower = [o.lower() for o in opts]
+        expected_lower = [e.lower() for e in expected_options]
+
+        missing = [e for e in expected_options if e.lower() not in actual_lower]
+        assert not missing, f"Missing options: {missing}. Actual: {opts}"
+
+        if exact:
+            assert set(expected_lower) == set(actual_lower), f"Expected exactly {expected_options}, got {opts}"
+
+    
